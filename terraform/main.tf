@@ -10,22 +10,29 @@ resource "aws_key_pair" "demo_alb" {
     public_key = file("./ssh-key.pub")
 }
 
-resource "aws_default_security_group" "default" {
+resource "aws_security_group" "just-for-testing" {
   vpc_id = aws_vpc.main.id
+  name = "just-for-testing-sg"
+  tags = {
+    Name = "just-for-testing-sg"
+  }
 
   ingress {
-    protocol  = -1
-    self      = true
     from_port = 0
-    to_port   = 0
+    to_port = 0
+    cidr_blocks = ["0.0.0.0/0"]
+    protocol = "tcp"
+  }
+  egress {
+    from_port = 0
+    to_port = 0
+    cidr_blocks = ["0.0.0.0/0"]
+    protocol = "tcp"
   }
 }
 
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
-  tags = {
-    Name = "alb-demo-igw"
-  }
 }
 
 resource "aws_route_table" "public_rt" {
@@ -63,7 +70,7 @@ resource "aws_subnet" "public_subnets" {
 resource "aws_instance" "flask_app" {
   instance_type   = "t3.micro"
   ami             = "ami-05ffe3c48a9991133"
-  security_groups = [aws_default_security_group.default.id]
+  security_groups = [aws_security_group.just-for-testing.id]
   subnet_id       = aws_subnet.public_subnets[0].id
   #user_data       = file("../app/start.sh")
   key_name = aws_key_pair.demo_alb.key_name
@@ -75,7 +82,7 @@ resource "aws_instance" "flask_app" {
 resource "aws_instance" "web_app" {
   ami             = "ami-05ffe3c48a9991133"
   instance_type   = "t3.micro"
-  security_groups = [aws_default_security_group.default.id]
+  security_groups = [aws_security_group.just-for-testing.id]
   subnet_id       = aws_subnet.public_subnets[1].id
   #user_data       = file("../web/start.sh")
   key_name = aws_key_pair.demo_alb.key_name
@@ -89,7 +96,7 @@ resource "aws_lb" "demo_lb" {
   load_balancer_type = "application"
   subnets            = aws_subnet.public_subnets[*].id
   internal           = false
-  security_groups    = [aws_default_security_group.default.id]
+  security_groups    = [aws_security_group.just-for-testing.id]
 }
 
 resource "aws_lb_target_group" "flask_tg" {
