@@ -5,6 +5,11 @@ resource "aws_vpc" "main" {
   }
 }
 
+resource "aws_key_pair" "demo_alb" {
+    key_name = "ssh-key"
+    public_key = file("./ssh-key.pub")
+}
+
 resource "aws_default_security_group" "default" {
   vpc_id = aws_vpc.main.id
 
@@ -61,6 +66,7 @@ resource "aws_instance" "flask_app" {
   security_groups = [aws_default_security_group.default.id]
   subnet_id       = aws_subnet.public_subnets[0].id
   user_data       = file("../app/start.sh")
+  key_name = aws_key_pair.demo_alb.key_name
   tags = {
     Name = "demo-flask-app"
   }
@@ -72,6 +78,7 @@ resource "aws_instance" "web_app" {
   security_groups = [aws_default_security_group.default.id]
   subnet_id       = aws_subnet.public_subnets[1].id
   user_data       = file("../web/start.sh")
+  key_name = aws_key_pair.demo_alb.key_name
   tags = {
     Name = "demo-web-app"
   }
