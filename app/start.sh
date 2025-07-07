@@ -2,7 +2,7 @@
 
 sudo yum update -y
 sudo yum install -y python3 git
-yum update && sudo yum install python3-pip
+sudo yum update && sudo yum install python3-pip
 pip3 install flask
 git clone https://github.com/nethu9/alb-demo.git
 cd alb-demo/app

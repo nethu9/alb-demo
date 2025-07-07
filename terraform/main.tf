@@ -21,13 +21,13 @@ resource "aws_security_group" "just-for-testing" {
     from_port = 0
     to_port = 0
     cidr_blocks = ["0.0.0.0/0"]
-    protocol = "tcp"
+    protocol = "-1"
   }
   egress {
     from_port = 0
     to_port = 0
     cidr_blocks = ["0.0.0.0/0"]
-    protocol = "tcp"
+    protocol = "-1"
   }
 }
 
@@ -122,13 +122,13 @@ resource "aws_lb_target_group" "web_tg" {
   vpc_id   = aws_vpc.main.id
 }
 
-resource "aws_lb_target_group_attachment" "flask_attach" {
+resource "aws_lb_target_group_attachment" "flask_attach" { # registering
   target_group_arn = aws_lb_target_group.flask_tg.arn
   target_id        = aws_instance.flask_app.id
   port             = 5000
 }
 
-resource "aws_lb_target_group_attachment" "web_attach" {
+resource "aws_lb_target_group_attachment" "web_attach" { #registering
   target_group_arn = aws_lb_target_group.web_tg.arn
   target_id        = aws_instance.web_app.id
   port             = 80
